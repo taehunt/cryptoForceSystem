@@ -11,7 +11,7 @@ export default function Navbar() {
             <nav className="flex justify-between items-center p-4 bg-gray-100 border-b">
                 <h1 className="text-2xl font-bold cursor-pointer"
                     onClick={() => navigate('/')}>
-                    💰 크립토 입금 시스템
+                    💰 Crypto Force System
                 </h1>
                 <div className="space-x-4">
                     {user ? (
