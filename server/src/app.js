@@ -72,9 +72,10 @@ app.use('/api/admin', (req, res, next) => {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.get('/webhook-admin', requireLogin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'views', 'webhook-admin.html'));
-});
+//관리자 페이지 라우터 (임시 비활성화)
+//app.get('/webhook-admin', requireLogin, (req, res) => {
+//    res.sendFile(path.join(__dirname, 'views', 'webhook-admin.html'));
+//});
 
 app.listen(PORT, () => {
     console.log(`✅ Server listening on http://localhost:${PORT}`);
