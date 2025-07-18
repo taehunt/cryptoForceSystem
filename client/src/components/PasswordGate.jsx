@@ -11,11 +11,12 @@ export default function PasswordGate() {
         e.preventDefault();
 
         const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
-        const res = await fetch(`${API_BASE}/api/auth/login`, {
+
+        const res = await fetch(`${API_BASE}/api/admin/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ username: 'admin', password }), // ✅ 수정됨
+            body: JSON.stringify({ password }), // ✅ 이것만 보내면 됨
         });
 
         console.log('📬 응답 상태:', res.status);
