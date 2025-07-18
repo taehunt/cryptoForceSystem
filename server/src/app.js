@@ -25,8 +25,19 @@ const COOKIE_SECURE = process.env.COOKIE_SECURE === 'true';
 
 app.use(cookieParser());
 
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://crypto-force-system.vercel.app',
+];
+
 app.use(cors({
-    origin: CORS_ORIGIN,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 
