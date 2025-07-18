@@ -27,7 +27,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
     'http://localhost:3000',
-    'https://crypto-force-system.vercel.app',
+    'https://crypto-force-system.vercel.app', // ✅ 이 도메인 정확히 포함
 ];
 
 app.use(cors({
@@ -35,6 +35,7 @@ app.use(cors({
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.log('Blocked by CORS:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
