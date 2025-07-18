@@ -23,8 +23,6 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'defaultSecret';
 const COOKIE_SECURE = process.env.COOKIE_SECURE === 'true';
 
-app.use(cookieParser());
-
 const allowedOrigins = [
     'http://localhost:3000',
     'https://crypto-force-system.vercel.app', // ✅ 이 도메인 정확히 포함
@@ -43,16 +41,16 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(session({
-    origin: CORS_ORIGIN,
-    credentials: true,
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
         secure: COOKIE_SECURE,
         httpOnly: true,
+        sameSite: 'none', // ✅ 추가
         maxAge: 1000 * 60 * 60
     }
 }));
