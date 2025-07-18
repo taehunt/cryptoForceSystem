@@ -16,7 +16,7 @@ export default function PasswordGate() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ password }), // ✅ 이것만 보내면 됨
+            body: JSON.stringify({ username: 'admin', password }), // ✅ username 포함되어야 함
         });
 
         console.log('📬 응답 상태:', res.status);

@@ -12,8 +12,8 @@ import { fileURLToPath } from 'url';
 import { requireLogin } from './middlewares/auth.middleware.js';
 
 import authRoutes from './routes/auth.route.js';
-import adminRoutes from './routes/admin.route.js';
 import userRoutes from './routes/user.route.js';
+import adminRoutes from './routes/admin.route.js';
 
 const app = express();
 
