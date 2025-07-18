@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
     const hashed = await bcrypt.hash('testwebhook', 10); // 기본 비밀번호
+    console.log("hashed : " + hashed);
 
     // 관리자 계정 생성
     await prisma.admin.upsert({
