@@ -6,11 +6,10 @@ export default function PasswordGate() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
         const res = await fetch(`${API_BASE}/api/admin/login`, {
             method: 'POST',

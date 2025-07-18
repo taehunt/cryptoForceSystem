@@ -1,4 +1,3 @@
-// server/src/app.js
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -17,29 +16,35 @@ import adminRoutes from './routes/admin.route.js';
 
 const app = express();
 
-// ✅ .env 환경 변수 불러오기
+// ✅ 환경변수
 const PORT = process.env.PORT || 5000;
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'defaultSecret';
 const COOKIE_SECURE = process.env.COOKIE_SECURE === 'true';
 
 const allowedOrigins = [
     'http://localhost:3000',
-    'https://crypto-force-system.vercel.app', // ✅ 이 도메인 정확히 포함
+    'https://crypto-force-system.vercel.app'
 ];
 
-app.use(cors({
+// ✅ CORS — 맨 위에 위치, 옵션도 완전하게 설정
+const corsOptions = {
     origin: function (origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            console.log('Blocked by CORS:', origin);
+            console.log('❌ Blocked by CORS:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true
-}));
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
 
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // ✅ 프리플라이트 응답 추가
+
+// ✅ 기타 미들웨어
 app.use(express.json());
 app.use(cookieParser());
 
@@ -50,11 +55,12 @@ app.use(session({
     cookie: {
         secure: COOKIE_SECURE,
         httpOnly: true,
-        sameSite: 'none', // ✅ 추가
+        sameSite: 'none',
         maxAge: 1000 * 60 * 60
     }
 }));
 
+// ✅ 라우터 등록
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', (req, res, next) => {

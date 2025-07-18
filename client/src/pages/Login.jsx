@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
-
 export default function Login() {
     const [form, setForm] = useState({ id: '', password: '' });
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { setUser } = useAuth();
+    const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
