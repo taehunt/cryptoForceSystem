@@ -2,7 +2,7 @@ import express from 'express';
 import {
     registerUser,
     loginUser,
-    logoutUser, // ✅ 추가
+    logoutUser,
     getCurrentUser,
 } from '../controllers/user.controller.js';
 

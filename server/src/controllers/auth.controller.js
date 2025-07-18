@@ -38,7 +38,7 @@ export const registerUser = async (req, res) => {
             data: {
                 id: String(id),
                 email,
-                passwordHash: hashedPassword,  // ✅ 이 줄도 수정
+                passwordHash: hashedPassword,
             },
         });
 
