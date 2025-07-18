@@ -17,14 +17,18 @@ async function main() {
         },
     });
 
-    // 설정 값 초기화
-    await prisma.config.createMany({
-        data: [
-            { key: 'sweepWalletAddress', value: 'TRON_MAIN_WALLET_ADDRESS' },
-            { key: 'gasLimit', value: '100000' },
-        ],
-        skipDuplicates: true,
-    });
+    // MongoDB는 skipDuplicates 지원 안함 → createMany 대신 create 개별 호출
+    const configData = [
+        { key: 'sweepWalletAddress', value: 'TRON_MAIN_WALLET_ADDRESS' },
+        { key: 'gasLimit', value: '100000' },
+    ];
+
+    for (const item of configData) {
+        const existing = await prisma.config.findUnique({ where: { key: item.key } });
+        if (!existing) {
+            await prisma.config.create({ data: item });
+        }
+    }
 
     console.log('✅ 관리자 및 기본 설정 데이터 삽입 완료');
 }
