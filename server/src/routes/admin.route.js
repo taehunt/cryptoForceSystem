@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get('/deposits', getPendingDeposits);
 router.post('/deposits/:id/approve', approveDeposit);
-router.post('/admin/login', loginAdmin);
+router.post('/login', loginAdmin);
 
 export default router;
