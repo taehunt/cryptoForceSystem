@@ -56,8 +56,11 @@ app.use(session({
 }));
 
 app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/admin', (req, res, next) => {
+    console.log('✅ /api/admin route hit:', req.method, req.url);
+    next();
+}, adminRoutes);
 
 // ✅ 관리자 페이지 보호
 const __filename = fileURLToPath(import.meta.url);

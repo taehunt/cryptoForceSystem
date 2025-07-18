@@ -3,8 +3,8 @@ import { loginAdmin, getPendingDeposits, approveDeposit } from '../controllers/a
 
 const router = express.Router();
 
+router.post('/login', loginAdmin);
 router.get('/deposits', getPendingDeposits);
 router.post('/deposits/:id/approve', approveDeposit);
-router.post('/login', loginAdmin);
 
 export default router;
