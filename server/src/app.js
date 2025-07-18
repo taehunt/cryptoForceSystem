@@ -68,15 +68,6 @@ app.use('/api/admin', (req, res, next) => {
     next();
 }, adminRoutes);
 
-// ✅ 관리자 페이지 보호
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-//관리자 페이지 라우터 (임시 비활성화)
-//app.get('/webhook-admin', requireLogin, (req, res) => {
-//    res.sendFile(path.join(__dirname, 'views', 'webhook-admin.html'));
-//});
-
 app.listen(PORT, () => {
     console.log(`✅ Server listening on http://localhost:${PORT}`);
 });
