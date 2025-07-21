@@ -13,6 +13,8 @@ import { requireLogin } from './middlewares/auth.middleware.js';
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import adminRoutes from './routes/admin.route.js';
+import merchantRoutes from './routes/merchant.route.js';
+import paymentRoutes from './routes/payment.route.js';
 
 const app = express();
 
@@ -67,6 +69,8 @@ app.use('/api/admin', (req, res, next) => {
     console.log('✅ /api/admin route hit:', req.method, req.url);
     next();
 }, adminRoutes);
+app.use('/api/merchants', merchantRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.listen(PORT, () => {
     console.log(`✅ Server listening on http://localhost:${PORT}`);

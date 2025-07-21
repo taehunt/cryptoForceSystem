@@ -7,6 +7,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedPage from './pages/ProtectedPage';
+import MerchantList from './pages/MerchantList';
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/admin" element={<PasswordGate />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/merchants" element={<MerchantList />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/protected" element={<ProtectedPage />} />

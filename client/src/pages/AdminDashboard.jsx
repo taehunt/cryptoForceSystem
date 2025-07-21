@@ -1,15 +1,17 @@
+// 경로: client/src/pages/admin/AdminDashboard.jsx
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
     const [deposits, setDeposits] = useState([]);
     const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+    const navigate = useNavigate();
 
     const fetchDeposits = async () => {
         try {
             const res = await fetch(`${API_BASE}/api/admin/deposits`);
             const data = await res.json();
 
-            // ✅ 배열만 setDeposits에 할당
             const depositList = Array.isArray(data)
                 ? data
                 : Array.isArray(data.deposits)
@@ -19,13 +21,13 @@ export default function AdminDashboard() {
             setDeposits(depositList);
         } catch (err) {
             console.error('입금 내역 로딩 실패:', err);
-            setDeposits([]); // 실패 시 빈 배열
+            setDeposits([]);
         }
     };
 
     const handleApprove = async (id) => {
         await fetch(`${API_BASE}/api/admin/deposits/${id}/approve`, { method: 'POST' });
-        fetchDeposits(); // 승인 후 목록 갱신
+        fetchDeposits();
     };
 
     useEffect(() => {
@@ -34,8 +36,25 @@ export default function AdminDashboard() {
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">🔐 관리자 대시보드</h1>
+            <h1 className="text-2xl font-bold mb-6">🔐 관리자 대시보드</h1>
 
+            {/* 🔘 기능 이동 버튼들 */}
+            <div className="flex gap-4 mb-8">
+                <button
+                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    onClick={() => navigate('/admin/merchants')}
+                >
+                    📄 상점 관리
+                </button>
+                <button
+                    className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                    onClick={() => navigate('/admin/payments/new')}
+                >
+                    ➕ 결제 요청 등록 (예정)
+                </button>
+            </div>
+
+            {/* 입금 승인 테이블 */}
             <h2 className="text-xl font-semibold mb-2">입금 대기 목록</h2>
             <table className="w-full text-sm border">
                 <thead>
@@ -66,7 +85,9 @@ export default function AdminDashboard() {
                 ))}
                 {deposits.length === 0 && (
                     <tr>
-                        <td colSpan="5" className="p-4 text-center text-gray-500">대기 중인 입금 없음</td>
+                        <td colSpan="5" className="p-4 text-center text-gray-500">
+                            대기 중인 입금 없음
+                        </td>
                     </tr>
                 )}
                 </tbody>
