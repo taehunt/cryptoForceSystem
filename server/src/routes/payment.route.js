@@ -1,9 +1,8 @@
 import express from 'express';
-import { getPendingPayments, approvePayment } from '../controllers/payment.controller.js';
+import { requestPayment } from '../controllers/payment.controller.js';
 
 const router = express.Router();
 
-router.get('/pending', getPendingPayments);
-router.post('/:id/approve', approvePayment);
+router.post('/request', requestPayment); // POST /api/payments/request
 
 export default router;

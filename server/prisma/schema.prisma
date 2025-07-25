@@ -29,30 +29,39 @@ model Transaction {
 }
 
 model User {
-  id              String           @id @map("_id")
-  email           String           @unique
-  passwordHash    String
-  createdAt       DateTime         @default(now())
+  id               String    @id @default(uuid()) @map("_id") // ✅ 추가됨
+  email            String    @unique
+  passwordHash     String
+  walletAddress    String?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime  @default(now())
+
   paymentRequests PaymentRequest[]
 }
 
 model Merchant {
-  id              String           @id @default(uuid()) @map("_id")
-  name            String
-  description     String?
-  walletAddress   String
-  createdAt       DateTime         @default(now())
-  paymentRequests PaymentRequest[] @relation("MerchantToPayments")
+  id               String   @id @default(auto()) @map("_id")
+  name             String
+  walletPrivateKey String
+  walletAddress    String
+  tokenAddress     String
+  paymentRequests  PaymentRequest[] @relation("MerchantToPayments")
+  createdAt        DateTime @default(now())
 }
 
 model PaymentRequest {
-  id         String   @id @default(uuid()) @map("_id")
-  userId     String
-  merchantId String
-  amount     Float
-  status     String
-  createdAt  DateTime @default(now())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId // ✅ 수정
+  userId        String
+  merchantId    String
+  amount        Float
+  token         String
+  walletAddress String
+  txHash        String?
+  status        String    @default("pending")
+  createdAt     DateTime  @default(now())
+  approvedAt    DateTime?
 
-  merchant Merchant @relation("MerchantToPayments", fields: [merchantId], references: [id])
-  User     User     @relation(fields: [userId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  merchant Merchant @relation(fields: [merchantId], references: [id], name: "MerchantToPayments") // ✅ 관계 이름 명시
 }

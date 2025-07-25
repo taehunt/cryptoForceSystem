@@ -1,26 +1,40 @@
-import PaymentRequest from '../models/paymentRequest.model.js';
+import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 
-export const getPendingPayments = async (req, res) => {
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+
+export async function requestPayment(req, res) {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: '로그인 필요' });
+
     try {
-        const pending = await PaymentRequest.find({ approved: false }).populate('userId');
-        res.json(pending);
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+
+        const { merchantId, amount, walletAddress } = req.body;
+        if (!merchantId || !amount || !walletAddress)
+            return res.status(400).json({ message: '모든 필드를 입력해주세요.' });
+
+        const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
+        if (!merchant || !merchant.isActive)
+            return res.status(400).json({ message: '유효하지 않은 상점입니다.' });
+
+        const token = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+        const payment = await prisma.paymentRequest.create({
+            data: {
+                userId,
+                merchantId,
+                amount: parseFloat(amount),
+                walletAddress,
+                token,
+            },
+        });
+
+        res.json({ message: '결제 요청이 생성되었습니다.', payment });
     } catch (err) {
-        res.status(500).json({ error: '서버 오류' });
+        console.error(err);
+        res.status(500).json({ message: '결제 요청 실패' });
     }
-};
-
-export const approvePayment = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const payment = await PaymentRequest.findById(id);
-        if (!payment) return res.status(404).json({ error: '요청 없음' });
-
-        payment.approved = true;
-        payment.approvedAt = new Date();
-        await payment.save();
-
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: '서버 오류' });
-    }
-};
+}

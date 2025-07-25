@@ -18,6 +18,15 @@ async function main() {
         },
     });
 
+    await prisma.merchant.create({
+        data: {
+            name: '테스트상점',
+            walletPrivateKey: '0x123abc...',
+            walletAddress: '0x456def...',
+            tokenAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7', // USDT 예시
+        }
+    });
+
     // MongoDB는 skipDuplicates 지원 안함 → createMany 대신 create 개별 호출
     const configData = [
         { key: 'sweepWalletAddress', value: 'TRON_MAIN_WALLET_ADDRESS' },

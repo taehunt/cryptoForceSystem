@@ -1,58 +1,109 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
-
-const Pay = () => {
+export default function Pay() {
+    const [wallet, setWallet] = useState('');
+    const [connected, setConnected] = useState(false);
+    const [error, setError] = useState('');
     const [merchants, setMerchants] = useState([]);
-    const [selected, setSelected] = useState('');
+    const [merchantId, setMerchantId] = useState('');
     const [amount, setAmount] = useState('');
-    const [tokenType, setTokenType] = useState('USDT');
+    const [success, setSuccess] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+
+    useEffect(() => {
+        fetch(`${API_BASE}/api/merchants`)
+            .then(res => res.json())
+            .then(data => setMerchants(data))
+            .catch(() => setError('상점 목록을 불러올 수 없습니다.'));
+    }, []);
+
+    const connectWallet = async () => {
+        setError('');
+        if (!window.ethereum) return setError('MetaMask가 설치되어 있지 않습니다.');
+
         try {
-            const res = await axios.post(`${API_BASE}/api/payments/request`, {
-                userId: 'test', // 실제 로그인된 유저 ID로 교체
-                merchantId: selected,
-                amount: parseFloat(amount),
-                tokenType
-            }, { withCredentials: true });
-            alert('결제 요청 완료');
-            console.log(res.data);
-        } catch (err) {
-            console.error(err);
-            alert('요청 실패');
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            setWallet(accounts[0]);
+            setConnected(true);
+        } catch {
+            setError('지갑 연결 실패');
         }
     };
 
-    useEffect(() => {
-        const fetchMerchants = async () => {
-            const res = await axios.get(`${API_BASE}/api/merchants`, { withCredentials: true });
-            setMerchants(res.data);
-        };
-        fetchMerchants();
-    }, []);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+
+        try {
+            const res = await fetch(`${API_BASE}/api/payments/request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // 쿠키 기반
+                body: JSON.stringify({ merchantId, amount }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message);
+
+            setSuccess('✅ 결제 요청이 성공적으로 전송되었습니다.');
+            setAmount('');
+            setMerchantId('');
+        } catch (err) {
+            setError(err.message);
+        }
+    };
 
     return (
-        <div className="p-8 max-w-md mx-auto">
-            <h2 className="text-2xl font-bold mb-4">결제 요청</h2>
+        <div className="max-w-lg mx-auto p-6 mt-12 bg-white shadow rounded space-y-6">
+            <h2 className="text-2xl font-bold">Web3 결제</h2>
+
+            <button
+                onClick={connectWallet}
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            >
+                {connected ? '지갑 재연결' : 'MetaMask 지갑 연결'}
+            </button>
+
+            {wallet && (
+                <div className="text-green-600 font-mono text-sm break-all">
+                    ✅ 연결된 지갑: {wallet}
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
-                <select value={selected} onChange={(e) => setSelected(e.target.value)} required className="w-full border p-2">
-                    <option value="">상점 선택</option>
-                    {merchants.map((m) => (
-                        <option key={m.id} value={m.id}>{m.name} ({m.category})</option>
+                <select
+                    value={merchantId}
+                    onChange={(e) => setMerchantId(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                >
+                    <option value="">-- 상점 선택 --</option>
+                    {merchants.map(m => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
                     ))}
                 </select>
-                <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="금액" required className="w-full border p-2" />
-                <select value={tokenType} onChange={(e) => setTokenType(e.target.value)} className="w-full border p-2">
-                    <option value="USDT">USDT</option>
-                    <option value="USDC">USDC</option>
-                </select>
-                <button type="submit" className="w-full bg-blue-600 text-white py-2">요청</button>
+
+                <input
+                    type="number"
+                    placeholder="결제 금액 (예: 100)"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                />
+
+                <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                    결제 요청
+                </button>
             </form>
+
+            {success && <p className="text-green-600">{success}</p>}
+            {error && <p className="text-red-600">{error}</p>}
         </div>
     );
-};
-
-export default Pay;
+}

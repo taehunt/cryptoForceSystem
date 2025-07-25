@@ -21,16 +21,16 @@ export default function Login() {
             const res = await fetch(`${API_BASE}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // 🔥 필수
                 body: JSON.stringify(form),
             });
 
+            const data = await res.json();
             if (!res.ok) {
-                const data = await res.json();
                 return setError(data.message || '로그인 실패');
             }
 
-            const data = await res.json();
-            setUser(data);
+            setUser(data); // ✅ 서버에서 리턴한 { id, email, ... } 구조
             navigate('/');
         } catch {
             setError('로그인 중 오류 발생');

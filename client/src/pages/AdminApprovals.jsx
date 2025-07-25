@@ -1,69 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const AdminApprovals = () => {
-    const [requests, setRequests] = useState([]);
-    const [status, setStatus] = useState('');
-
-    const fetchPendingRequests = async () => {
-        try {
-            const res = await axios.get('/api/admin/payment-requests');
-            setRequests(res.data || []);
-        } catch (err) {
-            console.error('결제 요청 목록 불러오기 실패:', err);
-        }
-    };
-
-    const handleApprove = async (id) => {
-        try {
-            const res = await axios.post(`/api/admin/payment-requests/${id}/approve`);
-            if (res.data.success) {
-                setStatus('승인 성공');
-                fetchPendingRequests();
-            } else {
-                setStatus('승인 실패: ' + (res.data.error || ''));
-            }
-        } catch (err) {
-            console.error(err);
-            setStatus('요청 중 오류 발생');
-        }
-    };
+    const [payments, setPayments] = useState([]);
 
     useEffect(() => {
-        fetchPendingRequests();
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/api/admin/payments/pending`, {
+            credentials: 'include',
+        })
+            .then(res => res.json())
+            .then(data => setPayments(data))
+            .catch(console.error);
     }, []);
 
+    const handleApprove = async (id) => {
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/admin/payments/${id}/approve`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        const data = await res.json();
+        if (res.ok) {
+            setPayments(prev => prev.filter(p => p.id !== id));
+            alert('승인 완료');
+        } else {
+            alert(data.message);
+        }
+    };
+
     return (
-        <div className="p-8">
-            <h1 className="text-2xl font-bold mb-6">결제 요청 승인</h1>
-            {status && <p className="mb-4 text-sm text-gray-700">{status}</p>}
-            <div className="space-y-4">
-                {requests.length === 0 ? (
-                    <p>대기 중인 결제 요청이 없습니다.</p>
-                ) : (
-                    requests.map((req) => (
-                        <div
-                            key={req._id}
-                            className="border rounded p-4 flex items-center justify-between"
-                        >
-                            <div>
-                                <p className="font-semibold">
-                                    가맹점: {req.merchant?.name || '알 수 없음'}
-                                </p>
-                                <p>금액: {req.amount} USDT</p>
-                                <p>요청자: {req.user?.email}</p>
-                                {req.message && <p>메시지: {req.message}</p>}
-                            </div>
-                            <button
-                                onClick={() => handleApprove(req._id)}
-                                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                            >
-                                승인
-                            </button>
-                        </div>
-                    ))
-                )}
-            </div>
+        <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">결제 요청 승인</h2>
+            {payments.length === 0 ? (
+                <p>대기 중인 결제 요청이 없습니다.</p>
+            ) : (
+                <table className="w-full border">
+                    <thead>
+                    <tr>
+                        <th>요청 ID</th>
+                        <th>금액</th>
+                        <th>지갑주소</th>
+                        <th>상점 ID</th>
+                        <th>승인</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {payments.map(p => (
+                        <tr key={p.id}>
+                            <td>{p.id}</td>
+                            <td>{p.amount}</td>
+                            <td>{p.walletAddress}</td>
+                            <td>{p.merchantId}</td>
+                            <td>
+                                <button
+                                    onClick={() => handleApprove(p.id)}
+                                    className="bg-green-600 text-white px-3 py-1 rounded"
+                                >
+                                    승인
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            )}
         </div>
     );
 };

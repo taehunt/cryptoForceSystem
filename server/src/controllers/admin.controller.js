@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { findPendingDeposits, confirmDepositById } from '../services/admin.service.js';
+import { sendToken } from '../utils/web3.js';
 
 const prisma = new PrismaClient();
 
@@ -47,5 +48,56 @@ export async function approveDeposit(req, res) {
         res.json(updated);
     } catch {
         res.status(500).json({ message: '승인 실패' });
+    }
+}
+
+export async function getPendingPayments(req, res) {
+    try {
+        const payments = await prisma.paymentRequest.findMany({
+            where: { status: 'pending' },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(payments);
+    } catch {
+        res.status(500).json({ message: '조회 실패' });
+    }
+}
+
+// 결제 요청 승인
+export async function approvePayment(req, res) {
+    const { id } = req.params;
+
+    try {
+        const payment = await prisma.paymentRequest.findUnique({
+            where: { id },
+            include: { merchant: true }, // ✅ 상점 정보 함께 가져오기
+        });
+
+        if (!payment || !payment.merchant) return res.status(404).json({ message: '결제 요청 또는 상점 정보 없음' });
+        if (payment.status !== 'pending') return res.status(400).json({ message: '이미 처리됨' });
+
+        const { walletPrivateKey, tokenAddress, walletAddress } = payment.merchant;
+        const amountInUnits = BigInt(payment.amount) * 10n ** 6n;
+
+        const txHash = await sendToken({
+            privateKey: walletPrivateKey,
+            tokenAddress,
+            to: payment.walletAddress,
+            amount: amountInUnits.toString()
+        });
+
+        const updated = await prisma.paymentRequest.update({
+            where: { id },
+            data: {
+                status: 'approved',
+                txHash,
+                approvedAt: new Date()
+            }
+        });
+
+        res.json({ message: '승인 및 전송 완료', payment: updated });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Web3 전송 실패', error: err.message });
     }
 }

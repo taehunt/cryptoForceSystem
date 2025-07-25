@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
-dotenv.config();
+import fs from 'fs';
 
 import cors from 'cors';
 import session from 'express-session';
@@ -11,12 +11,20 @@ import { fileURLToPath } from 'url';
 import { requireLogin } from './middlewares/auth.middleware.js';
 
 import authRoutes from './routes/auth.route.js';
-import userRoutes from './routes/user.route.js';
 import adminRoutes from './routes/admin.route.js';
 import merchantRoutes from './routes/merchant.route.js';
 import paymentRoutes from './routes/payment.route.js';
 
 const app = express();
+
+// ✅ NODE_ENV에 따라 알맞은 .env 파일 로드
+const nodeEnv = process.env.NODE_ENV || 'development';
+const envPath = `.env.${nodeEnv}`;
+if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+} else {
+    dotenv.config(); // fallback to default .env
+}
 
 // ✅ 환경변수
 const PORT = process.env.PORT || 5000;
@@ -28,7 +36,7 @@ const allowedOrigins = [
     'https://crypto-force-system.vercel.app'
 ];
 
-// ✅ CORS — 맨 위에 위치, 옵션도 완전하게 설정
+// ✅ CORS
 const corsOptions = {
     origin: function (origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
@@ -44,7 +52,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // ✅ 프리플라이트 응답 추가
+app.options('*', cors(corsOptions));
 
 // ✅ 기타 미들웨어
 app.use(express.json());
@@ -64,7 +72,6 @@ app.use(session({
 
 // ✅ 라우터 등록
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
 app.use('/api/admin', (req, res, next) => {
     console.log('✅ /api/admin route hit:', req.method, req.url);
     next();
