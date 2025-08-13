@@ -14,6 +14,7 @@ import authRoutes from './routes/auth.route.js';
 import adminRoutes from './routes/admin.route.js';
 import merchantRoutes from './routes/merchant.route.js';
 import paymentRoutes from './routes/payment.route.js';
+import userRoutes from './routes/user.route.js';
 
 const app = express();
 
@@ -47,7 +48,7 @@ const corsOptions = {
         }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 };
 
@@ -78,6 +79,7 @@ app.use('/api/admin', (req, res, next) => {
 }, adminRoutes);
 app.use('/api/merchants', merchantRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/user', userRoutes);
 
 app.listen(PORT, () => {
     console.log(`✅ Server listening on http://localhost:${PORT}`);

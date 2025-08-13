@@ -1,6 +1,6 @@
 // client/src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext'; // ✅ 추가
+import { AuthProvider } from './contexts/AuthContext';
 
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -13,6 +13,7 @@ import MerchantList from './pages/MerchantList';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import MyPage from './pages/MyPage';
+import Pay from './pages/Pay';
 import AdminApprovals from './pages/AdminApprovals';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
                 <Navbar />
                 <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/pay" element={<Pay />} />
                     <Route path="/admin" element={<PasswordGate />} />
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin/approvals" element={<AdminApprovals />} />

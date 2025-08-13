@@ -4,10 +4,10 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-    const hashed = await bcrypt.hash('testwebhook', 10); // 기본 비밀번호
-    console.log("hashed : " + hashed);
+    const hashed = await bcrypt.hash('testwebhook', 10);
+    console.log('hashed : ' + hashed);
 
-    // 관리자 계정 생성
+    // 관리자 계정
     await prisma.admin.upsert({
         where: { username: 'admin' },
         update: {},
@@ -18,16 +18,17 @@ async function main() {
         },
     });
 
+    // 테스트 상점
     await prisma.merchant.create({
         data: {
             name: '테스트상점',
             walletPrivateKey: '0x123abc...',
             walletAddress: '0x456def...',
-            tokenAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7', // USDT 예시
-        }
+            tokenAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        },
     });
 
-    // MongoDB는 skipDuplicates 지원 안함 → createMany 대신 create 개별 호출
+    // Config 키 삽입 (Mongo에서는 createMany skipDuplicates 미지원)
     const configData = [
         { key: 'sweepWalletAddress', value: 'TRON_MAIN_WALLET_ADDRESS' },
         { key: 'gasLimit', value: '100000' },

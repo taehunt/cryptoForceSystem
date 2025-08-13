@@ -36,4 +36,14 @@ router.post('/change-password', changePassword);
 // 지갑 주소 변경
 router.post('/update-wallet', updateWalletAddress);
 
+// 호환용 me
+router.get('/me', authMiddleware, async (req, res) => {
+    const me = await prisma.user.findUnique({
+        where: { id: req.user.id },
+        select: { id: true, email: true, wallet: true, defaultWalletType: true }
+    });
+    if (!me) return res.status(404).json({ message: 'Not found' });
+    res.json(me);
+});
+
 export default router;

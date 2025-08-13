@@ -16,3 +16,10 @@ export function createUser(email, passwordHash) {
 export function validatePassword(input, hash) {
     return bcrypt.compare(input, hash);
 }
+
+export const updateWalletAddress = async (userId, walletAddress) => {
+    return await prisma.user.update({
+        where: { id: userId },
+        data: { walletAddress },
+    });
+};
