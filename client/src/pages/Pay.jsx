@@ -12,7 +12,7 @@ const ERC20_ABI = [
         type: "function"
     }
 ];
-
+/* test */
 const Pay = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
